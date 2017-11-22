@@ -262,6 +262,8 @@
 
 	void read_POS(sensor_msgs::Imu pos_msg)
 	{
+		mpc_speed = pos_msg.linearacceleration.x;
+		mpc_roll = pos_msg.angularvelocity.x;
 	}
 
 
