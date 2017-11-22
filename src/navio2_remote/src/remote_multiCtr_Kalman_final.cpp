@@ -260,6 +260,10 @@
 		//ROS_INFO("dt: %f - Lat: %f - Lon: %f", dtGPS, GPSLat, GPSLon);
 	}
 
+	void read_POS(sensor_msgs::Imu pos_msg)
+	{
+	}
+
 
     void sum33(float a[3][3], float b[3][3], float c[3][3])
     {
@@ -505,6 +509,7 @@ bool checkOutlier(float covariance[3][3], float mean[3][1], float point[3][1])
 		//subscribe to imu topic
 		ros::Subscriber imu_sub = n.subscribe("imu_readings", 1000, read_Imu);
 		ros::Subscriber gps_sub = n.subscribe("gps_readings", 1000, read_GPS);
+		ros::Subscriber pos_sub = n.subscribe("pos_readings", 1000, read_POS);
 
 		//running rate = freq Hz
 		ros::Rate loop_rate(freq);
@@ -585,7 +590,10 @@ bool checkOutlier(float covariance[3][3], float mean[3][1], float point[3][1])
 
 		while (ros::ok())
 		{
-
+			if(mpc_speed>0) mpc_speed_check = 1;
+			else mpc_speed_check = 0;
+			if(mpc_roll>0) mpc_roll_check = 1;
+			else mpc_roll_check = 0;
 			/*******************************************/
 			/*             ROLL SECTION                */
 			/*******************************************/
@@ -765,6 +773,8 @@ bool checkOutlier(float covariance[3][3], float mean[3][1], float point[3][1])
 			pos_msg.orientation.y = z_gps[1][0];
 			pos_msg.orientation.z = mu_kalman[0][0];
 			pos_msg.orientation.w = mu_kalman[1][0];
+			pos_msg.linearacceleration.x = mpc_speed_check;
+			pos_msg.angularvelocity.y = mpc_roll_check;
 
 			//publish messages
 			remote_pub.publish(rem_msg);
